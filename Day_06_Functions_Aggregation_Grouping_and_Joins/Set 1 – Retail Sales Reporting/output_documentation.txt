@@ -1,0 +1,293 @@
+SET 1 - RETAIL SALES REPORTING
+Output Documentation (expected results)
+SQL Server 2025  |  MongoDB 8.0
+
+ABOUT THIS DOCUMENT
+-------------------
+This file lists the result of every query in reports.sql and
+every pipeline in reports.js, using the sample data that reports.sql
+and reports.js load themselves.
+
+Sample data size:
+  customers    : 10
+  products     : 8
+  orders       : 18  (one is Cancelled, so 17 count towards revenue)
+  order_items  : 32
+  payments     : 15
+
+
+=====================================================================
+PART 1 - SQL SERVER QUERIES (reports.sql)
+=====================================================================
+
+---------------------------------------------------------------------
+Query 1 : Top 5 products by revenue
+---------------------------------------------------------------------
+How it works: order_items is joined to products and orders, cancelled
+orders are filtered out, revenue is summed per product and the top 5
+rows are kept after sorting by revenue (highest first).
+
+Result:
+
+product_id  product_name         units_sold  total_revenue
+----------  -------------------  ----------  -------------
+         2  Mechanical Keyboard           5       12495.00
+         3  USB-C Hub                     5        6495.00
+         1  Wireless Mouse                8        6392.00
+         6  Backpack                      3        5397.00
+         8  Desk Lamp                     4        3996.00
+(5 rows)
+
+Observation: Mechanical Keyboard is the best seller by value (Rs. 12495.00).
+
+
+---------------------------------------------------------------------
+Query 2 : Month-wise sales
+---------------------------------------------------------------------
+How it works: FORMAT(order_date, 'yyyy-MM') turns each date into a
+year-month label, then orders and revenue are grouped on that label.
+
+Result:
+
+sales_month  total_orders  monthly_revenue
+-----------  ------------  ---------------
+2026-09                 5         10936.00
+2026-10                 6         16829.00
+2026-11                 6         15131.00
+(3 rows)
+
+Observation: 2026-10 is the strongest month with Rs. 16829.00.
+
+
+---------------------------------------------------------------------
+Query 3 : Customers with more than three orders (HAVING)
+---------------------------------------------------------------------
+How it works: orders are counted per customer in GROUP BY. WHERE cannot
+filter on an aggregate, so HAVING COUNT(order_id) > 3 is used after the
+grouping. All orders are counted here, including cancelled ones.
+
+Result:
+
+customer_id  customer_name  order_count
+-----------  -------------  -----------
+          1  Arun Kumar               4
+          3  Rahul Sharma             4
+(2 rows)
+
+Observation: only two customers pass the HAVING filter. Every other
+customer has 2 orders or fewer.
+
+
+---------------------------------------------------------------------
+Query 4 : Average basket value per city
+---------------------------------------------------------------------
+How it works: the inner query totals each order (one basket), the outer
+query averages those totals per city. Averaging order_items rows
+directly would give the average line value, which is wrong here.
+
+Result:
+
+city       orders  avg_basket_value
+---------  ------  ----------------
+Delhi           6           3105.50
+Hyderabad       2           2548.00
+Kochi           1           2499.00
+Chennai         6           2172.00
+Bengaluru       2           1818.00
+(5 rows)
+
+Observation: Delhi has the highest average basket (Rs. 3105.50),
+Bengaluru the lowest (Rs. 1818.00).
+
+
+---------------------------------------------------------------------
+Query 5 : Orders without payment (LEFT JOIN)
+---------------------------------------------------------------------
+How it works: orders is LEFT JOINed to payments. An order with no
+matching payment gets NULL in every payments column, so
+WHERE p.payment_id IS NULL keeps only the unpaid orders.
+
+Result:
+
+order_id  order_date  status     customer_name
+--------  ----------  ---------  -------------
+      12  2026-10-28  Cancelled  Priya Nair
+      16  2026-11-08  Pending    Sneha Reddy
+      18  2026-11-14  Shipped    Vikram Singh
+(3 rows)
+
+Observation: order 12 was cancelled, order 16 is still Pending and
+order 18 has only been Shipped, so no payment is recorded for them.
+
+
+---------------------------------------------------------------------
+Query 6 : Customers with no orders
+---------------------------------------------------------------------
+How it works: customers LEFT JOIN orders, keeping the rows where the
+order side is NULL.
+
+Result:
+
+customer_id  customer_name  city     signup_date
+-----------  -------------  -------  -----------
+          8  Anita Das      Kolkata  2026-04-21
+          9  Rohan Mehta    Mumbai   2026-05-09
+         10  Divya Menon    Kochi    2026-05-30
+(3 rows)
+
+Observation: these three customers signed up but have never ordered.
+
+
+---------------------------------------------------------------------
+Query 7 : Product-category revenue share
+---------------------------------------------------------------------
+How it works: revenue is summed per category. SUM(SUM(...)) OVER ()
+gives the grand total on every row so each category can be shown as a
+percentage of it, rounded to 2 decimals.
+
+Result:
+
+category     category_revenue  revenue_share_pct
+-----------  ----------------  -----------------
+Electronics          25382.00              59.17
+Accessories           9389.00              21.89
+Stationery            4129.00               9.63
+Home                  3996.00               9.32
+(4 rows)
+
+Observation: Electronics brings in 59.17% of total revenue. The
+shares add up to 100% (100.01 because of rounding).
+
+
+---------------------------------------------------------------------
+Query 8 : Day with the highest sales
+---------------------------------------------------------------------
+How it works: revenue is summed per order_date, sorted highest first
+and TOP 1 WITH TIES keeps every day that equals the top value.
+
+Result:
+
+order_date  orders_that_day  daily_revenue
+----------  ---------------  -------------
+2026-10-09                2        4296.00
+2026-10-15                1        4296.00
+(2 rows)
+
+Observation: two days tie for the highest daily revenue, Rs. 4296.00 each, which is
+why WITH TIES returns both rows.
+
+
+---------------------------------------------------------------------
+Task 2 : String, date and math functions (Part C of reports.sql)
+---------------------------------------------------------------------
+Functions used:
+  UPPER(), CONCAT(), FORMAT(), DATEDIFF(), ROUND()
+
+Expected result (first 5 paid orders):
+
+order_id  customer_display  order_date_fmt  order_value   days_to_pay  gst_amount
+--------  ----------------  --------------  ------------  -----------  ----------
+       1  KUMAR, Arun       03-Sep-2026     Rs. 1,297.00            1      233.46
+       2  NAIR, Priya       05-Sep-2026     Rs. 2,499.00            2      449.82
+       3  SHARMA, Rahul     12-Sep-2026     Rs. 2,246.00            3      404.28
+       4  KUMAR, Arun       18-Sep-2026     Rs. 2,897.00            0      521.46
+       5  IYER, Meena       25-Sep-2026     Rs. 1,997.00            1      359.46
+(5 rows)
+
+message_text column (the customer-friendly output):
+
+  order 1: Hi ARUN! Order #1 (Rs. 1,297.00) placed on 03-Sep-2026 was paid in 1 day(s). GST @18%: Rs. 233.46
+  order 2: Hi PRIYA! Order #2 (Rs. 2,499.00) placed on 05-Sep-2026 was paid in 2 day(s). GST @18%: Rs. 449.82
+  order 3: Hi RAHUL! Order #3 (Rs. 2,246.00) placed on 12-Sep-2026 was paid in 3 day(s). GST @18%: Rs. 404.28
+  order 4: Hi ARUN! Order #4 (Rs. 2,897.00) placed on 18-Sep-2026 was paid in 0 day(s). GST @18%: Rs. 521.46
+  order 5: Hi MEENA! Order #5 (Rs. 1,997.00) placed on 25-Sep-2026 was paid in 1 day(s). GST @18%: Rs. 359.46
+
+
+---------------------------------------------------------------------
+Task 3 : NULL behaviour in COUNT(*), COUNT(column) and AVG
+---------------------------------------------------------------------
+Example 1 - COUNT(*) vs COUNT(column) on customers.phone
+
+Result:
+
+total_rows  rows_with_phone  null_phones
+----------  ---------------  -----------
+        10                7            3
+(1 row)
+
+COUNT(*) counts every row, so it returns 10. COUNT(phone) counts
+only rows where phone is NOT NULL, so it returns 7. The
+difference (3) is the number of customers with no phone number.
+
+Example 2 - AVG on orders.discount_amount
+
+Result:
+
+total_orders  orders_with_discount  avg_ignoring_nulls  avg_nulls_as_zero
+------------  --------------------  ------------------  -----------------
+          18                     5              120.00              33.33
+(1 row)
+
+Only 5 of the 18 orders have a discount recorded, the rest hold NULL.
+AVG ignores NULL values in both the sum and the count, so
+AVG(discount_amount) = sum / 5 = 120.00.
+If NULL is treated as 0 with ISNULL, the average is spread over all
+18 orders and drops to 33.33. So the same column gives two different
+averages depending on how NULL is handled. NULL means "unknown / not
+given", not zero, and the choice must match the business question.
+
+
+=====================================================================
+PART 2 - MONGODB AGGREGATION PIPELINES (reports.js)
+=====================================================================
+Collection: retail_db.orders (one document per order, items embedded)
+All three pipelines start with $match { status: { $ne: "Cancelled" } }.
+
+---------------------------------------------------------------------
+Pipeline 1 : Month-wise sales   ($match -> $group -> $sort)
+---------------------------------------------------------------------
+Output:
+
+[
+  { _id: '2026-09', total_orders: 5, monthly_revenue: 10936 },
+  { _id: '2026-10', total_orders: 6, monthly_revenue: 16829 },
+  { _id: '2026-11', total_orders: 6, monthly_revenue: 15131 }
+]
+
+Same figures as SQL Query 2.
+
+
+---------------------------------------------------------------------
+Pipeline 2 : Top 5 products   ($match -> $unwind -> $group -> $sort -> $limit)
+---------------------------------------------------------------------
+$unwind splits the items array so every product line becomes its own
+document before grouping.
+
+Output:
+
+[
+  { _id: 'Mechanical Keyboard', units_sold: 5, total_revenue: 12495 },
+  { _id: 'USB-C Hub', units_sold: 5, total_revenue: 6495 },
+  { _id: 'Wireless Mouse', units_sold: 8, total_revenue: 6392 },
+  { _id: 'Backpack', units_sold: 3, total_revenue: 5397 },
+  { _id: 'Desk Lamp', units_sold: 4, total_revenue: 3996 }
+]
+
+
+---------------------------------------------------------------------
+Pipeline 3 : Average basket value per city   ($match -> $group -> $sort -> $project)
+---------------------------------------------------------------------
+$avg is taken on order_total, so each order counts once (one basket).
+The final $project only renames _id to city and rounds to 2 decimals.
+
+Output:
+
+[
+  { city: 'Delhi', orders: 6, avg_basket_value: 3105.5 },
+  { city: 'Hyderabad', orders: 2, avg_basket_value: 2548 },
+  { city: 'Kochi', orders: 1, avg_basket_value: 2499 },
+  { city: 'Chennai', orders: 6, avg_basket_value: 2172 },
+  { city: 'Bengaluru', orders: 2, avg_basket_value: 1818 }
+]
+
+

@@ -1,0 +1,112 @@
+SET 3 - TELECOM USAGE AND BILLING REPORTING
+Output Documentation (expected results)
+SQL Server 2025  |  MongoDB 8.0
+
+ABOUT THIS DOCUMENT
+-------------------
+This file lists the purpose and expected result of every query in reports.sql
+and every pipeline in reports.js, using the sample data loaded by the scripts.
+
+Sample data size:
+  plans           : 3
+  subscribers     : 5
+  call_records    : 5 (one subscriber has no call records)
+  invoice rows    : 5
+
+
+=====================================================================
+PART 1 - SQL SERVER QUERIES (reports.sql)
+=====================================================================
+
+---------------------------------------------------------------------
+Query 1 : Total call minutes per plan
+---------------------------------------------------------------------
+Purpose: Aggregates total conversation time grouped by telecom service plans.
+Expected Result:
+  plan_name       total_call_minutes
+  --------------  ------------------
+  Basic 15GB                     245
+  Unlimited 50GB                 300
+  Super 100GB                    500
+
+
+---------------------------------------------------------------------
+Query 2 : Subscribers exceeding their data limit (HAVING)
+---------------------------------------------------------------------
+Purpose: Filters subscribers whose total consumed data crosses their plan limit.
+Expected Result:
+  subscriber_id  subscriber_name  plan_name   data_limit_gb  total_data_used
+  -------------  ---------------  ----------  -------------  ---------------
+              1  Amit Kumar       Basic 15GB             15            16.50
+
+
+---------------------------------------------------------------------
+Query 3 : Month-wise revenue
+---------------------------------------------------------------------
+Purpose: Computes total invoice billings grouped chronologically by month.
+Expected Result:
+  revenue_month  monthly_revenue
+  -------------  ---------------
+  2026-09                 499.00
+  2026-10                4495.00
+
+
+---------------------------------------------------------------------
+Query 4 : Invoices overdue by more than 15 days
+---------------------------------------------------------------------
+Purpose: Identifies unpaid bills whose due date has passed by over 15 days.
+Expected Result: Returns overdue bills based on current system date evaluation.
+
+
+---------------------------------------------------------------------
+Query 5 : Subscribers with no usage (LEFT JOIN)
+---------------------------------------------------------------------
+Purpose: Finds registered accounts that have never generated any call or data records.
+Expected Result:
+  subscriber_id  subscriber_name  circle
+  -------------  ---------------  -------
+              5  Vikram Patel     Chennai
+
+
+---------------------------------------------------------------------
+Query 6 : Average Revenue Per User (ARPU) by circle
+---------------------------------------------------------------------
+Purpose: Calculates average invoice billings grouped by geographical regions.
+Expected Result: Segments ARPU values per telecom circle (Mumbai, Delhi, etc.).
+
+
+---------------------------------------------------------------------
+Query 7 : Plan popularity
+---------------------------------------------------------------------
+Purpose: Counts how many subscribers are registered under each plan tier.
+Expected Result: Lists plan names alongside total active subscriber counts.
+
+
+---------------------------------------------------------------------
+Query 8 : Top-10 data consumers
+---------------------------------------------------------------------
+Purpose: Ranks top data users in descending order of consumption volume.
+Expected Result: Returns top consumers using `TOP 10 WITH TIES`.
+
+
+---------------------------------------------------------------------
+Task 2 : String and Date Formatting Functions
+---------------------------------------------------------------------
+Functions used: UPPER(), CONCAT(), FORMAT(), DATEDIFF(), CASE.
+Expected Result: Produces friendly output columns displaying uppercase subscriber names, formatted invoice strings with currency masks, credit duration spans, and active/overdue payment status indicators.
+
+
+---------------------------------------------------------------------
+Task 3 : NULL behaviour in SUM and AVG
+---------------------------------------------------------------------
+- SUM(monthly_data_gb): Automatically skips NULL rows and computes sum over valid numeric entries.
+- AVG(monthly_data_gb): Automatically excludes NULL rows from both the numerator sum and the denominator count.
+
+
+=====================================================================
+PART 2 - MONGODB AGGREGATION PIPELINES (reports.js)
+=====================================================================
+
+Pipeline 1 : Hourly Usage ($group by hour, $sort)
+Pipeline 2 : Average Session Length per Subscriber ($group, $sort)
+Pipeline 3 : Busiest Cell Tower ($group, $sort, $limit)

@@ -1,0 +1,170 @@
+INSURANCE POLICY REPORTING - EXPECTED OUTPUT
+============================================
+Based on the sample data in reports.sql and reports.js.
+Reference date for the SQL reports: 2026-11-17
+
+
+PART 1: SQL QUERIES
+-------------------
+
+Query 1: Policies expiring in the next 30 days
+Active policies whose end date falls between today and today + 30 days (2026-12-17).
+
+policy_number   customer_name    product_name  end_date    days_left
+POL-2025-0001   Arun Kumar       Motor         2026-11-30  13
+POL-2025-0003   Bala Subramani   Motor         2026-12-09  22
+POL-2025-0012   Divya Raj        Motor         2026-12-14  27
+
+3 rows.
+
+
+Query 2: Premium collected per product
+Sum of all payments received, highest first.
+
+product_name  premium_collected
+Health        61500.00
+Life          55000.00
+Motor         39000.00
+Home          14000.00
+
+4 rows. Health is lower than its written premium because POL-2026-0010 is only half paid.
+
+
+Query 3: Customers with more than one active policy
+
+customer_id  customer_name    active_policies
+2            Bala Subramani   2
+3            Chitra Devi      2
+4            Divya Raj        2
+
+3 rows. Elango M also has 2 policies, but one is Expired, so he is not listed.
+
+
+Query 4: Claim ratio per product
+claim_ratio_pct = claims_paid / premium_collected * 100 (settled claims only).
+
+product_name  premium_collected  claims_paid  claim_ratio_pct
+Home          14000.00           14000.00     100.00
+Health        61500.00           23000.00     37.40
+Motor         39000.00           12000.00     30.77
+Life          55000.00           0.00         0.00
+
+4 rows.
+
+
+Query 5: Policies without claims
+
+policy_number   customer_name    product_name
+POL-2026-0005   Divya Raj        Life
+POL-2026-0007   Elango M         Life
+POL-2026-0009   Gopal Krishnan   Home
+POL-2026-0010   Hema Latha       Health
+POL-2025-0012   Divya Raj        Motor
+
+5 rows.
+
+
+Query 6: Average premium by age band
+Customer age is worked out as of 2026-11-17.
+
+age_band   policies  avg_premium
+Under 30   2         10000.00
+30-39      3         16666.67
+40-49      3         11166.67
+50-59      2         11750.00
+60+        2         25000.00
+
+5 rows (12 policies in total).
+
+
+Query 7: Monthly new policies
+
+policy_month  new_policies
+2025-06       1
+2025-12       3
+2026-01       1
+2026-02       1
+2026-03       1
+2026-04       1
+2026-06       1
+2026-08       1
+2026-10       1
+2026-11       1
+
+10 rows. Months with no new policies are not shown.
+
+
+Query 8: Top 5 agents by premium
+
+agent_name  policies_sold  total_premium
+Meena       2              50000.00
+Priya       3              43000.00
+Ravi        2              37000.00
+Suresh      2              18000.00
+Anita       1              15000.00
+
+5 rows. Karthik (14000.00) is sixth and is left out.
+
+
+Query 9 (Task 2): Policy age bands and masked policy numbers
+Bands: New = started in the last 3 months, Established = 3 to 12 months, Mature = over 1 year.
+
+policy_number   masked_policy_number  start_date  policy_age_months  policy_age_band
+POL-2025-0001   POL-****-0001         2025-12-01  11                 Established (3-12 months)
+POL-2026-0002   POL-****-0002         2026-01-15  10                 Established (3-12 months)
+POL-2025-0003   POL-****-0003         2025-12-10  11                 Established (3-12 months)
+POL-2026-0004   POL-****-0004         2026-03-01  8                  Established (3-12 months)
+POL-2026-0005   POL-****-0005         2026-02-20  9                  Established (3-12 months)
+POL-2025-0006   POL-****-0006         2025-06-01  17                 Mature (over 1 year)
+POL-2026-0007   POL-****-0007         2026-04-05  7                  Established (3-12 months)
+POL-2026-0008   POL-****-0008         2026-08-12  3                  Established (3-12 months)
+POL-2026-0009   POL-****-0009         2026-10-01  1                  New (under 3 months)
+POL-2026-0010   POL-****-0010         2026-11-05  0                  New (under 3 months)
+POL-2026-0011   POL-****-0011         2026-06-20  5                  Established (3-12 months)
+POL-2025-0012   POL-****-0012         2025-12-15  11                 Established (3-12 months)
+
+12 rows.
+
+
+WHERE vs HAVING (explained with Query 3)
+----------------------------------------
+WHERE filters rows before they are grouped. HAVING filters the groups after
+GROUP BY and COUNT have been calculated.
+
+In Query 3:
+  - WHERE p.status = 'Active' removes the Expired policy rows first.
+    This leaves 11 of the 12 policies.
+  - GROUP BY then counts the remaining policies per customer.
+  - HAVING COUNT(*) > 1 keeps only customers whose count is above 1.
+
+HAVING cannot be replaced by WHERE here because the count does not exist
+until the rows are grouped. WHERE cannot be replaced by HAVING either, without
+changing the answer: Elango M would be counted with 2 policies and wrongly listed.
+
+
+PART 2: MONGODB PIPELINES (reports.js)
+--------------------------------------
+
+Pipeline 1: Claims per status
+[
+  { _id: 'Settled',      claims: 6 },
+  { _id: 'Rejected',     claims: 2 },
+  { _id: 'Under Review', claims: 2 }
+]
+
+
+Pipeline 2: Average settlement time
+Only the 6 settled claims are used. Days taken: 15, 18, 14, 25, 25 and 12 (total 109).
+109 / 6 = 18.17
+
+[ { settled_claims: 6, avg_settlement_days: 18.17 } ]
+
+
+Pipeline 3: Top three damage categories
+[
+  { _id: 'Collision',       claims: 4 },
+  { _id: 'Hospitalisation', claims: 3 },
+  { _id: 'Water Damage',    claims: 2 }
+]
+
+Theft (1 claim) is the next category and is cut off by $limit.
