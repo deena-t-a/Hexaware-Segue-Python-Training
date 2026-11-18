@@ -1,0 +1,30 @@
+=== TASK 1: Hub Code BST & Height Analysis ===
+Inserted hubs: ['MUM', 'DEL', 'BLR', 'CHN', 'HYD', 'KOL', 'AMD', 'PUN']
+Height of the BST: 3
+Effect of Sorted Input: If hub codes are inserted in strictly sorted order (e.g., AMD, BLR, CHN...), the BST degenerates into a linear linked list (skewed tree), making the height O(n) and search O(n) instead of O(log n).
+
+=== TASK 2: Parcel Tracking & Double Scan Detection ===
+Flagged double-scanned parcels: [{'parcel_id': 'TRK-001', 'hub_id': 'MUM'}]
+
+=== TASK 3: National Logistics Network Graph (BFS & DFS) ===
+Adjacency List representation:
+  DEL -> ['MUM', 'BLR', 'JAI']
+  MUM -> ['DEL', 'PUN']
+  BLR -> ['DEL', 'CHN']
+  PUN -> ['MUM']
+  CHN -> ['BLR', 'HYD']
+  HYD -> ['CHN', 'KOL']
+  KOL -> ['HYD', 'AMD']
+  AMD -> ['KOL', 'JAI']
+  JAI -> ['AMD', 'DEL']
+
+Fewest hops route from DEL to CHN (BFS): ['DEL', 'BLR', 'CHN'] (2 hops)
+All hubs reachable from central depot DEL (DFS): ['DEL', 'JAI', 'AMD', 'KOL', 'HYD', 'CHN', 'BLR', 'PUN', 'MUM']
+
+=== TASK 4: Sliding Window (Highest Average 4-Hour Window) ===
+Hourly Counts: [1200, 1500, 1800, 2200, 2500, 2400, 2100, 1900]
+Busiest 4-Hour Window starts at Hour 2 with highest average: 2300.00 parcels/hr
+
+=== TASK 5: Two-Pointer Route Palindrome Checker ===
+Route Code: 'MUM-DEL-BLR-DEL-MUM'
+Is Palindrome route: True

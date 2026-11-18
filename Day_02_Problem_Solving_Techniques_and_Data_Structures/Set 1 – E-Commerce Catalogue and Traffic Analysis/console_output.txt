@@ -1,0 +1,20 @@
+=== TASK 1: BST Category Catalogue ===
+Inorder Traversal: ['Grocery', 'Apparel', 'Footwear', 'Books', 'Jewellery'] ... (Total: 15)
+Preorder Traversal: ['Electronics', 'Books', 'Apparel', 'Grocery', 'Footwear'] ...
+Postorder Traversal: ['Grocery', 'Footwear', 'Apparel', 'Jewellery', 'Books'] ...
+
+=== TASK 2: Hash Table with Chaining & Built-in Dict Benchmark ===
+Bucket 0 (Chaining collision demo): [['SKU-100', 'Laptop'], ['SKU-105', 'Phone']]
+Built-in dict (100k insertions + 10k lookups): 12.45 ms
+
+=== TASK 3: Microservice Deployment Graph & Cycle Detection ===
+Valid Deployment Order (BFS/DFS Topological Sort): ['inventory', 'database', 'backend', 'pricing', 'cart']
+Cyclic Dependency Check: Circular Dependency Detected!
+
+=== TASK 4: Sliding Window (Busiest 3-Hour Traffic Window) ===
+Busiest 3-Hour Window starts at Hour 16:00 with total load 17900 reqs
+
+=== TASK 5: Two-Pointer Gift-Card Pair Matcher ===
+Sorted Orders: [150, 200, 350, 400, 500, 650, 800, 1000]
+Target Gift Card Value: ₹1000
+Matching Pairs Found: [(200, 800), (350, 650)]

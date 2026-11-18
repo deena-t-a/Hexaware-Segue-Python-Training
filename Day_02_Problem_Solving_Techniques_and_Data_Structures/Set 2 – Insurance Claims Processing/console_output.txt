@@ -1,0 +1,22 @@
+=== TASK 1: Claim BST & Traversals ===
+Inorder Traversal (Sorted Order): [100, 250, 300, 500, 600, 750, 900]
+Preorder Traversal: [500, 250, 100, 300, 750, 600, 900]
+Postorder Traversal: [100, 300, 250, 600, 900, 750, 500]
+Explanation: The INORDER traversal yields claims in sorted numerical order because it visits the left subtree (smaller IDs), the root, and then the right subtree (larger IDs).
+
+=== TASK 2: Near-Duplicate Detection & Collision Handling ===
+Detected 1 duplicate(s): [({'claim_id': 'C-102', 'policy_number': 'pol-9988 ', 'incident_date': '2026-11-01'}, {'claim_id': 'C-101', 'policy_number': 'POL-9988', 'incident_date': '2026-11-01'})]
+Collision Handling Note: Python dictionaries handle hash collisions internally using open addressing with quadratic probing. When two distinct keys hash to the same bucket, Python probes subsequent slots until an open slot or matching key is found.
+
+=== TASK 3: Workflow Graph (BFS Shortest Path & DFS Cycles) ===
+Shortest path from Registration to Settlement (BFS): ['Registration', 'Surveyor', 'Settlement']
+Workflow contains loops (DFS): False
+
+=== TASK 4: Sliding Window (Longest Claim Spike Run) ===
+Daily Claims: [80, 110, 150, 90, 120, 130, 140, 95, 105]
+Longest consecutive run exceeding 100 claims: 4 days
+
+=== TASK 5: Two-Pointer Sorted Claim Lists Merge ===
+Office 1 Claims: [101, 105, 110, 120]
+Office 2 Claims: [102, 108, 125, 130]
+Merged Sorted Claims: [101, 102, 105, 108, 110, 120, 125, 130]

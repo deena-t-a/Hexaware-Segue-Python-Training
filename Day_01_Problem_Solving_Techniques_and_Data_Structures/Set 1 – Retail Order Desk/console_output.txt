@@ -1,0 +1,24 @@
+--- TASK 1: Search Benchmarking (50,000 Records) ---
+Linear Search: Found at index 48499 in 3.4210 ms
+Binary Search: Found at index 40562 in 0.0412 ms
+
+--- TASK 2: Sorting Comparison (10,000 Records) ---
+Tracing Bubble Sort (first 3 passes):
+Bubble Sort - Pass 1 complete. Top amount: 9987.45
+Bubble Sort - Pass 2 complete. Top amount: 9987.45
+Bubble Sort - Pass 3 complete. Top amount: 9987.45
+Merge Sort (O(n log n)) Time: 42.18 ms
+Built-in Timsort Time: 3.12 ms
+
+--- TASK 3: Duplicate Order Detection ---
+Detected 1 duplicate submission(s): [{'orderId': 103, 'customerId': 501, 'amount': 1500.0, 'createdAt': '2026-11-18 10:15:50'}]
+
+--- TASK 4: Stack & Queue Simulation ---
+Last action undone: Edit Order #101: Shipping address updated
+Dispatched: Order #101
+Next in dispatch line: Order #102 
+
+--- TASK 5: Refund Calculation (Greedy vs DP) ---
+Greedy refund for ₹780 using standard notes: [500, 200, 50, 10]
+Greedy for target 8 with [1, 4, 6]: [6, 1, 1]
+DP Optimal for target 8 with [1, 4, 6]: [4, 4]

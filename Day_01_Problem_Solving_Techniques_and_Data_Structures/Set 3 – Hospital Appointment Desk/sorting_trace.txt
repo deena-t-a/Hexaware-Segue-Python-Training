@@ -1,0 +1,69 @@
+=====================================================================
+DELIVERABLE 2: PAPER TRACE OF SELECTION SORT
+Domain: Hospital Appointment Desk (Day 1 - Set 3)
+Algorithm: Selection Sort (Sorting by Urgency Descending, then Arrival Time Ascending)
+=====================================================================
+
+INITIAL INPUT ARRAY:
+Index 0: (ID: 1, Urgency: 1, Arrival: 09:30)
+Index 1: (ID: 2, Urgency: 3, Arrival: 09:00)
+Index 2: (ID: 3, Urgency: 2, Arrival: 09:15)
+Index 3: (ID: 4, Urgency: 3, Arrival: 09:05)
+
+---------------------------------------------------------------------
+PASS 1 (i = 0):
+---------------------------------------------------------------------
+- Goal: Find the highest-priority appointment from index 0 to 3.
+- Comparison 1 (j = 1): Compare Index 0 (Urgency 1) with Index 1 (Urgency 3). 
+  -> Urgency 3 > Urgency 1. Current max candidate index = 1.
+- Comparison 2 (j = 2): Compare Index 1 (Urgency 3) with Index 2 (Urgency 2). 
+  -> Urgency 3 > Urgency 2. Max candidate remains index = 1.
+- Comparison 3 (j = 3): Compare Index 1 (Urgency 3, Arrival 09:00) with Index 3 (Urgency 3, Arrival 09:05). 
+  -> Urgencies are equal. Arrival 09:00 is earlier than 09:05. Max candidate remains index = 1.
+- Action: Swap element at index 0 with index 1.
+- Array state after Pass 1:
+  [1] (ID: 2, Urgency: 3, Arrival: 09:00)  <-- Fixed in final position
+  [2] (ID: 1, Urgency: 1, Arrival: 09:30)
+  [3] (ID: 3, Urgency: 2, Arrival: 09:15)
+  [4] (ID: 4, Urgency: 3, Arrival: 09:05)
+(Swaps count so far: 1)
+
+---------------------------------------------------------------------
+PASS 2 (i = 1):
+---------------------------------------------------------------------
+- Goal: Find the highest-priority appointment from index 1 to 3.
+- Current max candidate starts at index 1 (Urgency 1, Arrival 09:30).
+- Comparison 1 (j = 2): Compare Index 1 with Index 2 (Urgency 2, Arrival 09:15). 
+  -> Urgency 2 > Urgency 1. Current max candidate index = 2.
+- Comparison 2 (j = 3): Compare Index 2 (Urgency 2) with Index 3 (Urgency 3, Arrival 09:05). 
+  -> Urgency 3 > Urgency 2. Current max candidate index = 3.
+- Action: Swap element at index 1 with index 3.
+- Array state after Pass 2:
+  [1] (ID: 2, Urgency: 3, Arrival: 09:00)
+  [2] (ID: 4, Urgency: 3, Arrival: 09:05)  <-- Fixed in final position
+  [3] (ID: 3, Urgency: 2, Arrival: 09:15)
+  [4] (ID: 1, Urgency: 1, Arrival: 09:30)
+(Swaps count so far: 2)
+
+---------------------------------------------------------------------
+PASS 3 (i = 2):
+---------------------------------------------------------------------
+- Goal: Find the highest-priority appointment from index 2 to 3.
+- Current max candidate starts at index 2 (Urgency 2, Arrival 09:15).
+- Comparison 1 (j = 3): Compare Index 2 with Index 3 (Urgency 1, Arrival 09:30). 
+  -> Urgency 2 > Urgency 1. Max candidate remains index = 2.
+- Action: No swap needed as element is already in correct place relative to remaining sub-array.
+- Array state after Pass 3:
+  [1] (ID: 2, Urgency: 3, Arrival: 09:00)
+  [2] (ID: 4, Urgency: 3, Arrival: 09:05)
+  [3] (ID: 3, Urgency: 2, Arrival: 09:15)  <-- Fixed in final position
+  [4] (ID: 1, Urgency: 1, Arrival: 09:30)  <-- Automatically sorted
+(Total Swaps: 2)
+
+=====================================================================
+FINAL SORTED ARRAY:
+1. (ID: 2, Urgency: 3, Arrival: 09:00)
+2. (ID: 4, Urgency: 3, Arrival: 09:05)
+3. (ID: 3, Urgency: 2, Arrival: 09:15)
+4. (ID: 1, Urgency: 1, Arrival: 09:30)
+=====================================================================
